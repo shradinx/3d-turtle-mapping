@@ -3,19 +3,20 @@
 This program displays a 3D application aimed at connecting to a ComputerCraft turtle via a local websocket server and giving the user the ability to interactively map out and explore the environment around the turtle.
 
 ## Libraries Used:
-- [Ursina - Game Engine written in Python]([https://github.com/pokepetter/ursina])
+- [Ursina - Game Engine written in Python](https://github.com/pokepetter/ursina)
   - [Documentation](https://www.ursinaengine.org/documentation.html)
   - [API Reference](https://www.ursinaengine.org/api_reference.html)
 - [Websockets](https://pypi.org/project/websockets/)
 
 ## How to Run:
-1. Run the `main.py` script to start the 3D application and websocket server.
-2. Place your ComputerCraft turtle in-game facing north.
+1. Install the pip requirements in `requirements.txt` by running `pip install -r requirements.txt`
+2. Run the `main.py` script to start the 3D application and websocket server.
+3. Place your ComputerCraft turtle in-game facing north.
    1. It is important to make sure that your turtle is facing north, as this ensures that the 3D environment is accurately mapped around the turtle.
-3. Connect your in-game ComputerCraft turtle to the server using one of two methods linked below and run the script.
+4. Connect your in-game ComputerCraft turtle to the server using one of two methods linked below and run the script.
    1. Command for pastebin: `pastebin get 39M0XxZp` (Optional `as websocket.lua` if you want to change the script name when downloading from pastebin)
    2. Download the `websocket.lua` script found in the `src/turtle` directory, and upload it to your turtle using your file upload of choice.
-4. Done! Your turtle is now connected to the websocket server and you can control it via the keyboard and action buttons.
+5. Done! Your turtle is now connected to the websocket server and you can control it via the keyboard and action buttons.
 
 ## Controls
 - W, S = Move Forward/Backward
