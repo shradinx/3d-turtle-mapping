@@ -176,7 +176,11 @@ async def handshake(websocket: websockets.ServerConnection):
                 return
             
             try:
-                action, data = message.split('|', 1)
+                action, data, *rest = message.split('|')
+                if rest:
+                    fail_reason = rest[0]
+                    if len(notifications) == 0:
+                        Notification(fail_reason, bg_color=color.red)
             except ValueError:
                 print(f"[WebSocket] Invalid message format: {message}")
 
