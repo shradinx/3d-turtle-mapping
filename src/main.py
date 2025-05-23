@@ -61,6 +61,8 @@ inspectActions = {
     "inspect_down": [block_util.placeAboveBelow, False, ""],
 }
 
+ec = EditorCamera()
+
 actionMenu = Entity(parent=camera.ui)
 
 def sendActionAsync(coroutine, loop):
@@ -204,7 +206,7 @@ async def handshake(websocket: websockets.ServerConnection):
 def handle_handshake():
     t = turtle_handler.get_selected_turtle()
     coords = t.getXZCoords(True) if t is not None else (0, 0, 0)
-    turtle_handler.create_turtle(coords)
+    turtle_handler.create_turtle(ec, coords)
 
 def handle_action(action, data):
     if action in movementActions.keys():

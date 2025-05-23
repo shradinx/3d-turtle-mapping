@@ -92,7 +92,6 @@ class Direction(Enum):
     DOWN = "DOWN"
     FORWARD = "FORWARD"
 
-
 selected_turtle = None
 turtles = []
 animation_active = False
@@ -108,15 +107,15 @@ def set_animation_active(active: bool):
     animation_active = active
 
 
-def create_turtle(coords=(0, 0, 0)):
+def create_turtle(cam, coords=(0, 0, 0)):
     global selected_turtle
 
     selected_turtle = Turtle(coords=coords)
     turtles.append(selected_turtle)
 
-    camera.parent = selected_turtle
-    camera.position = (0, 15, 10)
-    camera.look_at(selected_turtle)
+    cam.parent = selected_turtle
+    """ camera.position = (0, 15, 10)
+    camera.look_at(selected_turtle) """
 
 
 def get_selected_turtle():
