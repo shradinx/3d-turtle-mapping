@@ -1,0 +1,11 @@
+/bin/
+/lib/
+/.vscode/
+/models_compressed/
+/__pycache__/
+
+src/models_compressed/
+src/__pycache__/
+
+.prettierrc
+CACHEDIR.TAG
