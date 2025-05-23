@@ -40,3 +40,8 @@ There are a number of buttons to help you perform tasks such as inspecting and b
 ## WIP Features:
 - Placing blocks as the turtle using items from its inventory
 - Multiple client support with easy turtle switching
+
+## Credits
+[Ottomated](https://www.youtube.com/@ottomated) - Original Idea/Concept (using TypeScript)
+ - [Minecraft, but I hacked into the OfflineTV server...](https://www.youtube.com/watch?v=pwKRbsDbxqc)
+ - [Turtle Gambit GitHub Repository](https://github.com/ottomated/turtle-gambit)
