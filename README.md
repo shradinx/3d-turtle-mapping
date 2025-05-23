@@ -10,6 +10,12 @@ This program displays a 3D application aimed at connecting to a ComputerCraft tu
   - [API Reference](https://www.ursinaengine.org/api_reference.html)
 - [Websockets](https://pypi.org/project/websockets/)
 
+## Requirements
+- Python 3.12 (recommended) (may work on older versions however have not tested)
+- Minecraft: Java Edition w/ ComputerCraft mod
+- HTTP enabled in ComputerCraft config
+- Any ComputerCraft turtle
+
 ## How to Run:
 1. Install the pip requirements in `requirements.txt` by running `pip install -r requirements.txt`
 2. Run the `main.py` script to start the 3D application and websocket server.
