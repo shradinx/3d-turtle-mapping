@@ -103,30 +103,56 @@ func_tbl = {
         ws.send(text)
     end
 }
-
+ 
 local function connect()
     return http.websocket("ws://0.0.0.0:8000")
 end
-
+ 
 local ws = connect()
 if not ws then
     print("Failed to connect websocket!")
     return
 end
-
+ 
+local function selectSlot(slot)
+    turtle.select(slot)
+end
+ 
+local function handleInventoryChange(msg)
+    for s in string.gmatch(msg, "%S+") do
+        local num = tonumber(s) or -1
+        if num ~= -1 then
+            selectSlot(num)
+            break
+        end
+    end
+    detail = turtle.getItemDetail()
+    text = "select_slot|"
+    if detail ~= nil then
+        text = text .. textutils.serialiseJSON(detail)
+    else
+        text = text .. "Empty"
+    end
+    ws.send(text)
+end
+ 
 while true do
     local event, url, msg, b = os.pullEvent()
-
+ 
     if event ~= "websocket_message" then
         goto continue
     end
-
+ 
     local func = func_tbl[msg]
     print(msg)
-    if func then
-        func(ws)
+    if string.find(msg, "select_slot") then
+        handleInventoryChange(msg)
+    else
+        if func then
+            func(ws)
+        end
     end
-
+ 
     ::continue::
     -- os.sleep(0.5)
 end
