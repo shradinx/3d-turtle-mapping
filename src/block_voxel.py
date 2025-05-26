@@ -19,6 +19,7 @@ class Block(Button):
         self.__hover_text__ = hover_text
         self.__id__ = random.randint(0, 1000)
         self.__color__ = color
+        self.info_box = None
 
         if transparent:
             self.alpha_setter(0.5)
@@ -41,38 +42,18 @@ class Block(Button):
         self.__wireframe__ = wireframe
 
     def on_mouse_enter(self):
-        text = self.__hover_text__
-
-        if text is None:
+        if not self.get_hover_text():
             return super().on_mouse_enter()
+
+        if not self.info_box:
+            self.info_box = InfoBox(self.get_hover_text(), id=self.get_id())
         
-        match = False
-
-        for tb in text_boxes:
-            if tb.get_id() == self.get_id():
-                match = True
-                break
-
-        if not match:
-            InfoBox(text, self.get_id())
-
         return super().on_mouse_enter()
 
     def on_mouse_exit(self):
-        toRemove = None
-
-        for tb in text_boxes:
-            if tb.get_id() != self.get_id():
-                continue
-            toRemove = tb
-
-        if toRemove is None:
-            return super().on_mouse_exit()
-        
-        text_boxes.remove(toRemove)
-        destroy_entity(toRemove)
-
-        return super().on_mouse_exit()
+        if self.info_box:
+            destroy_entity(self.info_box)
+            self.info_box = None
 
     def get_id(self):
         return self.__id__
@@ -96,34 +77,42 @@ class InfoBox(Text):
     def __init__(self, text: str, id: int = random.randint(0, 1000), bg_color=color.dark_gray, t_color=color.white):
         super().__init__(
             text=text,
-            color=t_color
+            color=t_color,
+            parent=camera.ui,
+            position=mouse.position
         )
         self.__id__ = id
 
         self.create_background(color=bg_color)
-        text_boxes.append(self)
 
     def get_id(self):
         return self.__id__
 
 
 class Notification(Button):
-    def __init__(self, text: str, bg_color=color.dark_gray, t_color=color.white):
+    def __init__(self, text: str, bg_color=color.dark_gray, t_color=color.white, destroy_on_click=True):
         super().__init__(
             text=text,
             color=bg_color,
             scale=(0.3, 0.075)
         )
+        self.destroy_on_click = destroy_on_click
         self.text_entity.color = t_color
-        notifications.append(self)
+        self.id = random.randint(1, 1000)
 
     def on_click(self):
+        global notification
+        if not self.destroy_on_click:
+            return
+        
+        notification = None
         destroy(self)
-        notifications.remove(self)
 
+    
 voxels: dict[color.Color, list[Block]] = {}
 text_boxes: list[InfoBox] = []
-notifications: list[Notification] = []
+notification = None
+slot_notification = None
 
 def destroy_entity(entity):
     destroy(entity=entity)
@@ -136,5 +125,5 @@ def get_text_boxes() -> list[InfoBox]:
     return text_boxes
 
 
-def get_notifications() -> list[Notification]:
-    return notifications
+def get_notification() -> Notification:
+    return notification
