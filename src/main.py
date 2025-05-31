@@ -18,6 +18,7 @@ window.exit_button.disable()
 window.fps_counter.disable()
 window.entity_counter.disable()
 window.collider_counter.disable()
+window.cog_button.disable()
 
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
