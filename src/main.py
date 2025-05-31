@@ -104,6 +104,13 @@ def make_inventory():
     active_slot = invButtons[0]
     draw_slot_notification(active_slot.get_hover_text())
 
+""" 
+WIP Buttons -> WindowPanel.content
+
+Text(text="WIP Buttons", origin=(0, 0), scale=1),
+*get_wip_buttons() 
+"""
+
 def start_websocket():
     async def run():
         async with websockets.serve(au.handshake, host, port) as ws:
@@ -118,9 +125,7 @@ def start_websocket():
                     position=pos,
                     content=[
                         *get_action_text(),
-                        *get_buttons(),
-                        Text(text="WIP Buttons", origin=(0, 0), scale=1),
-                        *get_wip_buttons()
+                        *get_buttons()
                     ]
                 )
             

@@ -1,6 +1,7 @@
 import asyncio
 import websockets
 import turtle_handler
+import json_util as ju
 from turtle_handler import *
 
 active_websocket = None
@@ -20,14 +21,13 @@ buttonActions = {
     "inspect_down": "Inspect Block Down",
     "dig": "Dig Block",
     "dig_up": "Dig Block Above",
-    "dig_down": "Dig Block Below"
-}
-
-WIP_actions = {
+    "dig_down": "Dig Block Below",
     "place": "Place Block",
     "place_up": "Place Block Above",
     "place_down": "Place Block Below"
 }
+
+WIP_actions = {}
 
 blockBreakActions = {
     "dig": [turtle_handler.dig, turtle_handler.Direction.FORWARD],
@@ -81,15 +81,17 @@ async def handshake(websocket: websockets.ServerConnection):
             
             try:
                 action, data, *rest = message.split('|')
-                if rest:
-                    fail_reason = rest[0]
-                    if bv.notification is None:
-                        bv.notification = bv.Notification(fail_reason, bg_color=color.red)
             except ValueError:
                 print(f"[WebSocket] Invalid message format: {message}")
 
             print(f"[WebSocket] Action: {action}")
             print(f"[WebSocket] Response Data: {data}")
+
+            if rest:
+                fail_reason = rest[0]
+                if bv.notification is None:
+                    bv.notification = bv.Notification(fail_reason, bg_color=color.red)
+                    continue
 
             if (action == "handshake" and data == "Yes"):
                 handle_handshake()
@@ -165,15 +167,16 @@ def handle_action(action: str, data: str):
         return True
     elif action in blockPlaceActions.keys():
         func, dir = blockPlaceActions[action]
-
-        block = turtle_handler.getBlock(dir)
         option = turtle_handler.getDirectionOption(dir)
 
-        if option is None:
+        value = ju.getValueFromJSON(data, "count")
+        if not value:
             return False
         
+        newData = "Empty" if value-1 <= 0 else ju.modifyJSON(data, "count", int(value)-1, dumpToString=True)
+
         coords = turtle_handler.getCoords(dir, option)
-        func(data, coords)
+        func(data, newData, coords)
 
         return True
     elif action in inspectActions.keys():

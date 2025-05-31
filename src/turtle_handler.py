@@ -5,7 +5,7 @@ import block_util
 import async_util as au
 from enum import Enum
 
-import json
+import json_util as ju
 
 import asyncio
 
@@ -150,7 +150,8 @@ class Slot(Button):
 
         draw_slot_notification(self.get_hover_text())
 
-        au.sendActionAsync(au.sendAction(f"select_slot | {self.index}"), asyncio.get_event_loop())
+        au.sendActionAsync(au.sendAction(
+            f"select_slot | {self.index}"), asyncio.get_event_loop())
 
 
 class Direction(Enum):
@@ -176,6 +177,10 @@ def draw_slot_notification(text: str):
         text, bg_color=color.black66, destroy_on_click=False)
     bv.slot_notification.position = (0, 0.4, 0)
 
+def redraw_slot_info(text: str):
+    clear_slot_notification()
+    draw_slot_notification(text)
+
 
 def get_active_slot():
     return active_slot
@@ -198,10 +203,11 @@ def set_animation_active(active: bool):
 
 def create_turtle(cam, coords=(0, 0, 0)):
     global selected_turtle
-    
+
     selected_turtle = Turtle(coords=coords)
 
     cam.parent = selected_turtle
+
 
 def get_selected_turtle():
     return selected_turtle
@@ -250,13 +256,13 @@ def getBlock(dir: Direction):
 
 
 def getCoords(dir: Direction, option: bool):
-    return selected_turtle.getXZCoords(option) if dir == Direction.FORWARD else selected_turtle.getYCoords(option)
+    return selected_turtle.getXZCoords(True) if dir == Direction.FORWARD else selected_turtle.getYCoords(option)
 
 
 def getDirectionOption(dir: Direction):
     option = None
     match dir:
-        case Direction.UP, Direction.FORWARD:
+        case Direction.UP | Direction.FORWARD:
             option = True
         case Direction.DOWN:
             option = False
@@ -275,22 +281,21 @@ def dig(block: bv.Block):
         destroy(block.info_box)
 
 
-def place(blockData: str, coords: tuple[int]):
-    if blockData == "":
+def place(oldData: str, newData: str, coords: tuple[int]):
+    if oldData == "" or newData == "":
         return
 
-    block_util.place(blockData, coords)
+    updateSlotInfo(newData)
+    block_util.place(oldData, coords)
+
 
 def updateSlotInfo(data: str):
     slot = get_active_slot()
-    try:
-        jsonData = json.loads(data)
+    jsonData = ju.loadToJSON(data)
+    text = "Empty"
+    if jsonData != "Empty":
         name = jsonData["name"]
         count = jsonData["count"]
         text = f"{name} ({count})"
-    except Exception as e:
-        text = "Empty"
     slot.set_hover_text(text)
-    clear_slot_notification()
-    draw_slot_notification(text)
-    
+    redraw_slot_info(text)
