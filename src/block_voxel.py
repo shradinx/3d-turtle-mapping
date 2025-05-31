@@ -1,5 +1,6 @@
 from ursina import *
 
+
 class Block(Button):
     def __init__(self, hover_text: str = None, texture=None, model='cube', position=(0, 0, 0), rotation=(0, 0, 0), color=color.white, transparent=False):
         super().__init__(
@@ -47,7 +48,7 @@ class Block(Button):
 
         if not self.info_box:
             self.info_box = InfoBox(self.get_hover_text(), id=self.get_id())
-        
+
         return super().on_mouse_enter()
 
     def on_mouse_exit(self):
@@ -63,13 +64,13 @@ class Block(Button):
 
     def get_color(self):
         return self.__color__
-    
+
     def remove(self):
         blocks: list[Block] = voxels.get(self.get_color())
         blocks.remove(self)
         if len(blocks) == 0:
             voxels.pop(self.get_color())
-                
+
         destroy_entity(self)
 
 
@@ -104,18 +105,20 @@ class Notification(Button):
         global notification
         if not self.destroy_on_click:
             return
-        
+
         notification = None
         destroy(self)
 
-    
+
 voxels: dict[color.Color, list[Block]] = {}
 text_boxes: list[InfoBox] = []
 notification = None
 slot_notification = None
 
+
 def destroy_entity(entity):
     destroy(entity=entity)
+
 
 def get_voxels() -> dict[color.Color, list[Block]]:
     return voxels
