@@ -1,8 +1,9 @@
-import asyncio
-import websockets
+from imports import *
+
 import turtle_handler
+import block_voxel as bv
+import block_util as bu
 import json_util as ju
-from turtle_handler import *
 
 active_websocket = None
 
@@ -19,6 +20,7 @@ buttonActions = {
     "inspect": "Inspect Block",
     "inspect_up": "Inspect Block Up",
     "inspect_down": "Inspect Block Down",
+    "auto_inspect": "Inspect All",
     "dig": "Dig Block",
     "dig_up": "Dig Block Above",
     "dig_down": "Dig Block Below",
@@ -42,9 +44,9 @@ blockPlaceActions = {
 }
 
 inspectActions = {
-    "inspect": [block_util.placeFrontBack, True, ""],
-    "inspect_up": [block_util.placeAboveBelow, True, ""],
-    "inspect_down": [block_util.placeAboveBelow, False, ""]
+    "inspect": [bu.placeFrontBack, True, ""],
+    "inspect_up": [bu.placeAboveBelow, True, ""],
+    "inspect_down": [bu.placeAboveBelow, False, ""]
 }
 
 invActions = {
@@ -88,10 +90,7 @@ async def handshake(websocket: websockets.ServerConnection):
             print(f"[WebSocket] Response Data: {data}")
 
             if rest:
-                fail_reason = rest[0]
-                if bv.notification is None:
-                    bv.notification = bv.Notification(fail_reason, bg_color=color.red)
-                    continue
+                continue
 
             if (action == "handshake" and data == "Yes"):
                 handle_handshake()
@@ -112,17 +111,18 @@ def handle_handshake():
     coords = t.getXZCoords(True) if t is not None else (0, 0, 0)
     turtle_handler.create_turtle(ec, coords)
 
-def sendActionAsync(coroutine, loop):
+def sendActionAsync(coroutine, loop: asyncio.AbstractEventLoop):
     return asyncio.run_coroutine_threadsafe(coroutine, loop)
 
-async def sendAction(action: str):
+async def sendAction(action: str, delay=None):
     if not active_websocket:
-        if bv.notification is None:
-            bv.notification = bv.Notification("No active connection!", bg_color=color.red)
         return
     
     if (action in movementActions) and turtle_handler.get_animation_active():
         return
+    
+    if delay is not None:
+        await asyncio.sleep(delay)
     
     if re.search("dig", action):
         split = action.split("_")
@@ -142,6 +142,8 @@ async def sendAction(action: str):
 
         msg = msg + " | " + str((block is not None))
         await active_websocket.send(msg)
+    elif re.search("auto_inspect", action):
+        await turtle_handler.autoInspect()
     else:
         await active_websocket.send(action)
 
@@ -170,7 +172,7 @@ def handle_action(action: str, data: str):
         option = turtle_handler.getDirectionOption(dir)
 
         value = ju.getValueFromJSON(data, "count")
-        if not value:
+        if value is None:
             return False
         
         newData = "Empty" if value-1 <= 0 else ju.modifyJSON(data, "count", int(value)-1, dumpToString=True)

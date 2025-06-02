@@ -1,13 +1,11 @@
-from ursina import *
+from imports import *
+
 import block_voxel as bv
 from string_util import *
 import block_util
 import async_util as au
-from enum import Enum
 
 import json_util as ju
-
-import asyncio
 
 import directions
 from directions import MoveDirection
@@ -107,7 +105,7 @@ class Inventory(Draggable):
 
     def get_slots(self):
         return self.__slots__
-
+    
 
 active_slot = None
 
@@ -140,6 +138,8 @@ class Slot(Button):
         return self.__id__
 
     def on_click(self):
+        if au.active_websocket is None:
+            return
         global active_slot
 
         if not active_slot:
@@ -288,14 +288,62 @@ def place(oldData: str, newData: str, coords: tuple[int]):
     updateSlotInfo(newData)
     block_util.place(oldData, coords)
 
+def make_inventory():
+    global active_slot
+
+    rows, cols = 4, 4
+    button_size = 0.15
+    spacing = 0.025
+
+    grid_width = cols * button_size + (cols - 1) * spacing
+    grid_height = rows * button_size + (rows - 1) * spacing
+
+    button_grid = Inventory(grid_width=grid_width, grid_height=grid_height)
+    button_grid.collision = True
+
+    for y in range(rows):
+        for x in range(cols):
+            i = y * cols + x
+            text = str(i + 1)
+            hover_text = "Empty"
+            b = Slot(
+                index=text,
+                hover_text=hover_text,
+                button_size=button_size,
+                parent=button_grid,
+                x=x,
+                y=y,
+                spacing=spacing
+            )
+            if i == 0:
+                b.color = color.gray
+            invButtons.append(b)
+    active_slot = invButtons[0]
+    draw_slot_notification(active_slot.get_hover_text())
 
 def updateSlotInfo(data: str):
     slot = get_active_slot()
     jsonData = ju.loadToJSON(data)
     text = "Empty"
-    if jsonData != "Empty":
+    if jsonData is not None:
         name = jsonData["name"]
         count = jsonData["count"]
         text = f"{name} ({count})"
     slot.set_hover_text(text)
     redraw_slot_info(text)
+
+async def autoInspect():
+    actionOrder = [
+        "inspect",
+        "turn_left",
+        "inspect",
+        "turn_right",
+        "turn_right",
+        "inspect",
+        "turn_left",
+        "inspect_up",
+        "inspect_down"
+    ]
+
+    for action in actionOrder:
+        await au.sendAction(action=action, delay=0.75)
