@@ -4,7 +4,7 @@ def loadToJSON(data: str):
     try:
         return json.loads(data)
     except Exception as _:
-        return "Empty"
+        return None
     
 def loadToString(data):
     try:
@@ -23,6 +23,6 @@ def modifyJSON(data: str, key: str, value, dumpToString: bool = False):
 def getValueFromJSON(data: str, key: str):
     jsonData = loadToJSON(data)
     if jsonData == "Empty":
-        return ""
+        return None
     
     return jsonData[key]
