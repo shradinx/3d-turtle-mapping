@@ -1,8 +1,10 @@
 from enum import Enum
 
+
 class MoveDirection(Enum):
     UP_DOWN = 0
     FORWARD_BACK = 1
+
 
 def getRotationValue(dir: bool):
     """

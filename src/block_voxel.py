@@ -1,4 +1,4 @@
-from ursina import *
+from imports import *
 
 
 class Block(Button):

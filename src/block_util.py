@@ -1,29 +1,29 @@
-import asyncio
-from ursina import *
-import json
+from imports import *
 
-import block_voxel
-from block_voxel import Block
-
+import json_util as ju
+import block_voxel as bv
 import turtle_handler as th
-
 import async_util as au
 
 
 def create(blockData: str, coords: tuple[int]):
-    jsonData = json.loads(blockData)
-    name = jsonData["name"]
+    jsonData = ju.loadToJSON(blockData)
+    if jsonData is None:
+        return
 
+    name = jsonData["name"]
     c = color.random_color()
-    for blockColor, blockList in block_voxel.get_voxels().items():
+
+    for blockColor, blockList in bv.get_voxels().items():
         for block in blockList:
             if block.get_hover_text() == name:
                 c = blockColor
                 break
 
-    block = Block(hover_text=name, position=coords,
-                  color=c, transparent=True)
+    block = bv.Block(hover_text=name, position=coords,
+                     color=c, transparent=True)
     block.on_click_setter(Func(on_block_click, block))
+
     return block
 
 
@@ -39,7 +39,7 @@ def place(blockData: str, coords: tuple[int]):
     if (blockData == '"No block to inspect"'):
         return
     try:
-        for _, bList in block_voxel.get_voxels().items():
+        for _, bList in bv.get_voxels().items():
             for b in bList:
                 if b.position == coords:
                     return
@@ -48,7 +48,7 @@ def place(blockData: str, coords: tuple[int]):
         print(f"[WebSocket] ValueError: {e}")
 
 
-def on_block_click(block: Block):
+def on_block_click(block: bv.Block):
     if isinstance(block, th.Turtle):
         return
 
