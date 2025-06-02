@@ -206,20 +206,21 @@ if err then
     return
 end
 
-local function fetch(ws)
-    return 
-end
-
 term.clear()
 term.setCursorPos(1, 1)
 print("   PyTurtle OS {o_o}\n")
 
 while true do
-    local msg = ws.receive()
+    local success, msg = pcall(ws.receive)
+
+    if not success then
+        print("Failed to connect...")
+        return
+    end
 
     if msg == nil then
         print("Failed to fetch...")
-        os.sleep(5)
+        sleep(3)
         goto continue
     end
 
@@ -237,5 +238,3 @@ while true do
 
     ::continue::
 end
-
-ws.close()
